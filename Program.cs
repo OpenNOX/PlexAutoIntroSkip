@@ -36,8 +36,11 @@ namespace PlexAutoIntroSkip
             var currentWorkingPath = Directory.GetCurrentDirectory();
             var options = new EdgeOptions();
             options.UseChromium = true;
+
+            // Disable infobar "Chrome is being controlled by automated test software".
             options.AddExcludedArgument("enable-automation");
             options.AddAdditionalOption("useAutomationExtension", false);
+
             options.AddArguments(
                 $"user-data-dir={currentWorkingPath}\\User Data",
                 "profile-directory=Profile 1",
@@ -61,6 +64,7 @@ namespace PlexAutoIntroSkip
                     // Waiting for Skip Intro button...
                     skipIntroButton = (RemoteWebElement)waitDriver.Until(webDriver =>
                     {
+                        // Check if web browser window exists by getting window's position.
                         _ = driver.Manage().Window.Position;
 
                         return webDriver.FindElement(By.XPath(skipIntroButtonXPath));
