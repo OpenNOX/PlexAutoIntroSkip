@@ -1,5 +1,8 @@
 bin/
 obj/
+Driver_Notes/
 User Data/
 
+*.exe
 *.log
+*.zip

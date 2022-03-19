@@ -12,22 +12,11 @@ using OpenQA.Selenium.Support.UI;
 
 namespace PlexAutoIntroSkip
 {
+    /// <summary>
+    /// Program entry point.
+    /// </summary>
     public class Program
     {
-        public class ProgramOptions
-        {
-            [Option('d', "debug", Required = false,
-                HelpText = "Show console window.")]
-            public bool ShowConsoleWindow { get; set; }
-
-            [Option('w', "wait-time", Required = false, Default = 2500,
-                HelpText = "Time to wait after Skip Button becomes visible before clicking.")]
-            public int SkipButtonWaitTime { get; set; }
-
-            [Value(0, MetaName = "plex-url", HelpText = "Plex URL to use.")]
-            public string PlexUrl { get; set; }
-        }
-
         /// <summary>
         /// Sets the specified window's show state.
         /// </summary>
@@ -41,7 +30,7 @@ namespace PlexAutoIntroSkip
         /// If the window was previously hidden, the return value is zero.
         /// </returns>
         [DllImport("user32.dll")]
-        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
         /// <summary>
         /// Program entry point.
@@ -50,18 +39,13 @@ namespace PlexAutoIntroSkip
         public static void Main(string[] args)
         {
             var options = GetProgramOptions(args);
-            var hWnd = Process.GetCurrentProcess().MainWindowHandle;
-            var edgeProcessName = "msedge";
 
-            // Called using own process window?
-            if (options.ShowConsoleWindow == false && hWnd.ToInt32() != 0)
+            HandleConsoleWindow(options.ShowConsoleWindow);
+
+            var edgeOptions = new EdgeOptions
             {
-                // Hide console application's console window.
-                ShowWindow(hWnd, 0);
-            }
-
-            var edgeOptions = new EdgeOptions();
-            edgeOptions.UseChromium = true;
+                UseChromium = true,
+            };
 
             // Disable "Chrome is being controlled by automated test software" infobar.
             edgeOptions.AddExcludedArgument("enable-automation");
@@ -72,8 +56,22 @@ namespace PlexAutoIntroSkip
                 "profile-directory=Profile 1",
                 $"app={options.PlexUrl}");
 
+            var edgeProcessName = "msedge";
             var edgeProcessIds = Process.GetProcessesByName(edgeProcessName).Select(p => p.Id);
-            var service = EdgeDriverService.CreateDefaultService();
+
+            EdgeDriverService service;
+            if (options.ManualHandleWebDriver)
+            {
+                service = EdgeDriverService.CreateDefaultService();
+            }
+            else
+            {
+                WebDriverManager.AutoUpdate();
+
+                service = EdgeDriverService.CreateDefaultService(
+                    WebDriverManager.MsEdgeDriverDirectoryName, WebDriverManager.MsEdgeDriverFileName);
+            }
+
             var driver = new EdgeDriver(service, edgeOptions);
             var browserProcessId = Process.GetProcessesByName(edgeProcessName).Select(p => p.Id)
                 .Except(edgeProcessIds)
@@ -92,6 +90,17 @@ namespace PlexAutoIntroSkip
             }
 
             Process.GetProcessById(service.ProcessId).Kill();
+        }
+
+        private static void HandleConsoleWindow(bool showConsoleWindow)
+        {
+            var hWnd = Process.GetCurrentProcess().MainWindowHandle;
+
+            // Hide console window and called using own process window?
+            if (showConsoleWindow == false && hWnd.ToInt32() != 0)
+            {
+                ShowWindow(hWnd, 0);
+            }
         }
 
         /// <summary>
@@ -163,21 +172,19 @@ namespace PlexAutoIntroSkip
         /// <param name="exception">Root <see name="Exception"/>.</param>
         private static void LogException(Exception exception)
         {
-            using (var writer = new StreamWriter("error.log", append: true))
+            using var writer = new StreamWriter("error.log", append: true);
+            writer.WriteLine("--------------------------------------------------");
+            writer.WriteLine($"[{DateTime.Now}]");
+            writer.WriteLine();
+
+            while (exception != null)
             {
-                writer.WriteLine("--------------------------------------------------");
-                writer.WriteLine($"[{DateTime.Now}]");
+                writer.WriteLine(exception.GetType().FullName);
+                writer.WriteLine(exception.Message);
+                writer.WriteLine(exception.StackTrace);
                 writer.WriteLine();
 
-                while (exception != null)
-                {
-                    writer.WriteLine(exception.GetType().FullName);
-                    writer.WriteLine(exception.Message);
-                    writer.WriteLine(exception.StackTrace);
-                    writer.WriteLine();
-
-                    exception = exception.InnerException;
-                }
+                exception = exception.InnerException;
             }
         }
 

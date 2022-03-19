@@ -10,14 +10,19 @@ Plex has an great feature that allows users to [Skip TV Show Intros](https://sup
 
 ## How to Install
 
-1. Download latest appropriate _Stable Channel_ release of [Microsoft Edge Driver](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/).
-1. Extract `msedgedriver.exe` from the downloaded ZIP archive and place it into your environment's PATH.
-    * If you are not sure where to place it, place it in the `C:\Windows\System32`.
 1. Download latest [Plex Auto Intro Skip Release](https://github.com/OpenNOX/PlexAutoIntroSkip/releases) and place it in a location it will be run from.
 1. Right-click on `PlexAutoIntroSkip.exe`, select "Create shortcut", right-click on newly created shortcut, and select "Properties".
 1. In the shortcut's properties window navigate to the end of "Target" textbox and add a space followed by "`{URL_TO_PLEX_SERVER}`" with double-quotes.
     * Finished example: `C:\bins\PlexAutoIntroSkip\PlexAutoIntroSkip.exe "https://plex.server/"`
 1. Click the "Ok" button, and move (or pin) the shortcut to the desired location to launch from.
+
+## Options
+
+* `-d`, `--debug` **:** Show console window.
+* `-m`, `--manual-driver` **:** Manually handle MS Edge Web Driver.
+    * If manually handling web driver the executable will need to be in environment's PATH or next to the `PlexAutoIntroSkip` executable.
+* `-w`, `--wait-time` **:** Time to wait, in milliseconds, after Skip Button becomes visible before clicking.
+    * **Default:** 2500
 
 ## Notes
 
