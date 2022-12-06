@@ -18,11 +18,8 @@ Plex has an great feature that allows users to [Skip TV Show Intros](https://sup
 
 ## Options
 
-* `-d`, `--debug` **:** Show console window.
-* `-m`, `--manual-driver` **:** Manually handle MS Edge Web Driver.
-    * If manually handling web driver the executable will need to be in environment's PATH or next to the `PlexAutoIntroSkip` executable.
 * `-w`, `--wait-time` **:** Time to wait, in milliseconds, after Skip Button becomes visible before clicking.
-    * **Default:** 2500
+    * **Default:** 3000
 
 ## Notes
 

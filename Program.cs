@@ -40,7 +40,12 @@ namespace PlexAutoIntroSkip
         {
             var options = GetProgramOptions(args);
 
-            HandleConsoleWindow(options.ShowConsoleWindow);
+            // Was called using own process window?
+            var hWnd = Process.GetCurrentProcess().MainWindowHandle;
+            if (hWnd.ToInt32() != 0)
+            {
+                ShowWindow(hWnd, 0);
+            }
 
             var edgeOptions = new EdgeOptions
             {
@@ -58,7 +63,7 @@ namespace PlexAutoIntroSkip
 
             try
             {
-                WebDriverManager.AutoUpdate();
+                WebDriverManager.AutoInstall();
             }
             catch (Exception exception)
             {
@@ -89,17 +94,6 @@ namespace PlexAutoIntroSkip
             }
 
             Process.GetProcessById(service.ProcessId).Kill();
-        }
-
-        private static void HandleConsoleWindow(bool showConsoleWindow)
-        {
-            var hWnd = Process.GetCurrentProcess().MainWindowHandle;
-
-            // Hide console window and called using own process window?
-            if (showConsoleWindow == false && hWnd.ToInt32() != 0)
-            {
-                ShowWindow(hWnd, 0);
-            }
         }
 
         /// <summary>
