@@ -56,21 +56,20 @@ namespace PlexAutoIntroSkip
                 "profile-directory=Profile 1",
                 $"app={options.PlexUrl}");
 
+            try
+            {
+                WebDriverManager.AutoUpdate();
+            }
+            catch (Exception exception)
+            {
+                LogException(exception);
+            }
+
             var edgeProcessName = "msedge";
             var edgeProcessIds = Process.GetProcessesByName(edgeProcessName).Select(p => p.Id);
 
-            EdgeDriverService service;
-            if (options.ManualHandleWebDriver)
-            {
-                service = EdgeDriverService.CreateDefaultService();
-            }
-            else
-            {
-                WebDriverManager.AutoUpdate();
-
-                service = EdgeDriverService.CreateDefaultService(
-                    WebDriverManager.MsEdgeDriverDirectoryName, WebDriverManager.MsEdgeDriverFileName);
-            }
+            var service = EdgeDriverService.CreateDefaultService(
+                WebDriverManager.MsEdgeDriverDirectoryName, WebDriverManager.MsEdgeDriverFileName);
 
             var driver = new EdgeDriver(service, edgeOptions);
             var browserProcessId = Process.GetProcessesByName(edgeProcessName).Select(p => p.Id)
